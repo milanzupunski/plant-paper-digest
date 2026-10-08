@@ -589,6 +589,10 @@ section.open .item.more{display:flex}
 section.open .item.more.hide{display:none}
 section.open .morebtn{display:none}
 .morebtn{margin:4px 0 0}
+select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font-size:13px}
+.btnlike{padding:7px 11px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;font-size:13px}
+.rm{margin-top:6px;font-size:12px;padding:3px 8px}
+.src a,.meta a{color:var(--acc)}
 </style>
 <script>try{if(localStorage.getItem("plantdigest-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
 </head>
@@ -596,46 +600,23 @@ section.open .morebtn{display:none}
 
 HTML_SCRIPT = r"""
 <script>
-const KEY='plantdigest-'+document.body.dataset.date;
-let kept={};
-try{kept=JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(kept))}catch(e){}}
-function refreshCount(){document.getElementById('nkept').textContent=Object.keys(kept).length}
-document.querySelectorAll('.item').forEach(el=>{
-  const cb=el.querySelector('input');const id=el.dataset.id;
-  if(kept[id]){cb.checked=true;el.classList.add('kept')}
-  cb.addEventListener('change',()=>{
-    if(cb.checked){kept[id]=1;el.classList.add('kept')}else{delete kept[id];el.classList.remove('kept')}
-    save();refreshCount();applyFilter();
-  });
-});
-refreshCount();
-function applyFilter(){
-  const q=document.getElementById('q').value.toLowerCase().trim();
-  const only=document.getElementById('only').checked;
-  const nopre=document.getElementById('nopre').checked;
-  const norev=document.getElementById('norev').checked;
-  document.querySelectorAll('section').forEach(sec=>{
-    if(q||only)sec.classList.add('open');
-    let n=0;
-    sec.querySelectorAll('.item').forEach(el=>{
-      let ok=(!q||el.textContent.toLowerCase().includes(q))&&(!only||kept[el.dataset.id])&&(!nopre||el.dataset.pre!=='1')&&(!norev||el.dataset.rev!=='1');
-      el.classList.toggle('hide',!ok); if(ok)n++;
-    });
-    sec.classList.toggle('hide',n===0);
-  });
+const SKEY='plantdigest-saved';
+function loadSaved(){try{return JSON.parse(localStorage.getItem(SKEY)||'{}')}catch(e){return {}}}
+function storeSaved(o){try{localStorage.setItem(SKEY,JSON.stringify(o));return true}catch(e){alert('Your browser blocked saving. Saved papers cannot be stored in this window (private mode?).');return false}}
+function refLine(r){return `${r.authors} (${(r.date||'').slice(0,4)}) ${r.title}. ${r.journal}. ${r.link}`}
+function copyRefs(list){
+  if(!list.length){alert('Nothing to copy yet.');return}
+  const txt=list.map(refLine).join('\n\n');
+  navigator.clipboard.writeText(txt).then(()=>flash('Copied '+list.length+' references'),()=>{prompt('Copy:',txt)});
 }
-['q','only','nopre','norev'].forEach(id=>document.getElementById(id).addEventListener('input',applyFilter));
-function selected(){return [...document.querySelectorAll('.item')].filter(el=>kept[el.dataset.id]).map(el=>{const r=JSON.parse(el.dataset.rec);const p=el.querySelector('details p');r.abstract=p?p.textContent:'';return r})}
-function copyList(){
-  const s=selected(); if(!s.length){alert('Nothing ticked yet.');return}
-  const txt=s.map(r=>`${r.authors} (${(r.date||'').slice(0,4)}) ${r.title}. ${r.journal}. ${r.link}`).join('\n\n');
-  navigator.clipboard.writeText(txt).then(()=>flash('Copied '+s.length+' references'),()=>{prompt('Copy:',txt)});
+function downloadFile(name,text,type){
+  const blob=new Blob([text],{type:type});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
 }
-function ris(){
-  const s=selected(); if(!s.length){alert('Nothing ticked yet.');return}
+function risFor(list,name){
+  if(!list.length){alert('Nothing to export yet.');return}
   const lines=[];
-  s.forEach(r=>{
+  list.forEach(r=>{
     lines.push('TY  - '+(r.preprint?'UNPB':'JOUR'));
     (r.authors||'').split(/,\s*/).filter(Boolean).forEach(a=>lines.push('AU  - '+a));
     lines.push('TI  - '+r.title);lines.push('T2  - '+r.journal);
@@ -645,16 +626,65 @@ function ris(){
     if(r.abstract)lines.push('AB  - '+r.abstract);
     lines.push('ER  - ','');
   });
-  const blob=new Blob([lines.join('\r\n')],{type:'application/x-research-info-systems'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='digest_'+document.body.dataset.date+'_selected.ris';a.click();
+  downloadFile(name,lines.join('\r\n'),'application/x-research-info-systems');
 }
-function showMore(b){b.closest('section').classList.add('open')}
+function flash(m){const b=document.getElementById('flash');if(b){b.textContent=m;setTimeout(()=>b.textContent='',2500)}}
 function setThemeLabel(){const b=document.getElementById("themebtn");if(b)b.textContent=document.documentElement.dataset.theme==="dark"?"Light mode":"Dark mode"}
 function toggleTheme(){const d=document.documentElement;const dark=d.dataset.theme!=="dark";if(dark)d.dataset.theme="dark";else delete d.dataset.theme;try{localStorage.setItem("plantdigest-theme",dark?"dark":"light")}catch(e){}setThemeLabel()}
 setThemeLabel();
-function clearAll(){if(confirm('Untick everything?')){kept={};save();location.reload()}}
-function flash(m){const b=document.getElementById('flash');b.textContent=m;setTimeout(()=>b.textContent='',2500)}
+
+const DATE=document.body.dataset.date;
+let saved=loadSaved();
+function recOf(el){const r=JSON.parse(el.dataset.rec);const p=el.querySelector('details p');r.abstract=p?p.textContent:'';r.review=el.dataset.rev==='1';return r}
+// one-time move of ticks made before the Saved page existed
+try{const old=JSON.parse(localStorage.getItem('plantdigest-'+DATE)||'null');
+  if(old){document.querySelectorAll('.item').forEach(el=>{if(old[el.dataset.id]&&!saved[el.dataset.id]){saved[el.dataset.id]=Object.assign(recOf(el),{savedOn:DATE,digest:DATE})}});
+    storeSaved(saved);localStorage.removeItem('plantdigest-'+DATE)}}catch(e){}
+function refreshCount(){
+  const here=[...document.querySelectorAll('.item')].filter(el=>saved[el.dataset.id]).length;
+  document.getElementById('nkept').textContent=here;
+  const t=document.getElementById('ntotal');if(t)t.textContent=Object.keys(saved).length;
+}
+document.querySelectorAll('.item').forEach(el=>{
+  const cb=el.querySelector('input');const id=el.dataset.id;
+  if(saved[id]){cb.checked=true;el.classList.add('kept')}
+  cb.addEventListener('change',()=>{
+    saved=loadSaved();
+    if(cb.checked){saved[id]=Object.assign(recOf(el),{savedOn:new Date().toISOString().slice(0,10),digest:DATE});el.classList.add('kept')}
+    else{delete saved[id];el.classList.remove('kept')}
+    storeSaved(saved);refreshCount();applyFilter();
+  });
+});
+refreshCount();
+function keepItem(el,show){
+  const pre=el.dataset.pre==='1',rev=el.dataset.rev==='1';
+  switch(show){
+    case 'saved':return !!saved[el.dataset.id];
+    case 'research':return !pre&&!rev;
+    case 'reviews':return rev;
+    case 'preprints':return pre;
+    case 'nopre':return !pre;
+    default:return true;
+  }
+}
+function applyFilter(){
+  const q=document.getElementById('q').value.toLowerCase().trim();
+  const show=document.getElementById('show').value;
+  document.querySelectorAll('section').forEach(sec=>{
+    if(q||show!=='all')sec.classList.add('open');
+    let n=0;
+    sec.querySelectorAll('.item').forEach(el=>{
+      const ok=(!q||el.textContent.toLowerCase().includes(q))&&keepItem(el,show);
+      el.classList.toggle('hide',!ok); if(ok)n++;
+    });
+    sec.classList.toggle('hide',n===0);
+  });
+}
+['q','show'].forEach(id=>document.getElementById(id).addEventListener('input',applyFilter));
+function savedHere(){return [...document.querySelectorAll('.item')].filter(el=>saved[el.dataset.id]).map(recOf)}
+function copyList(){copyRefs(savedHere())}
+function ris(){risFor(savedHere(),'digest_'+DATE+'_saved.ris')}
+function showMore(b){b.closest('section').classList.add('open')}
 </script>
 """
 
@@ -676,13 +706,15 @@ def write_html(path, items, sections_order, info, d_from, d_to, site=False):
     out.append('<div class="meta">%d papers, window %s to %s, generated %s%s</div>'
                % (len(items), d_from, d_to, today,
                   ' · <a href="archive.html">earlier digests</a>' if site else ""))
+    out.append('<div class="meta"><a href="saved.html">Saved papers (<span id="ntotal">0</span>)</a></div>')
     out.append('<div class="bar"><input id="q" type="search" placeholder="Filter by any word…">'
-               '<label class="chk"><input id="only" type="checkbox">ticked only</label>'
-               '<label class="chk"><input id="nopre" type="checkbox">hide preprints</label>'
-               '<label class="chk"><input id="norev" type="checkbox">hide reviews</label>'
-               '<button class="primary" onclick="copyList()">Copy ticked (<span id="nkept">0</span>)</button>'
-               '<button onclick="ris()">Download ticked as RIS (Zotero)</button>'
-               '<button onclick="clearAll()">Untick all</button><button id="themebtn" onclick="toggleTheme()">Dark mode</button><span id="flash" class="meta"></span></div>')
+               '<label class="chk">Show <select id="show">'
+               '<option value="all">all papers</option><option value="saved">saved</option>'
+               '<option value="research">research papers only</option><option value="reviews">reviews only</option>'
+               '<option value="preprints">preprints only</option><option value="nopre">no preprints</option></select></label>'
+               '<button class="primary" onclick="copyList()">Copy saved here (<span id="nkept">0</span>)</button>'
+               '<button onclick="ris()">Download as RIS (Zotero)</button>'
+               '<button id="themebtn" onclick="toggleTheme()">Dark mode</button><span id="flash" class="meta"></span></div>')
     out.append("<nav>")
     for s in order:
         out.append('<a href="#s%d">%s (%d)</a>' % (order.index(s), e(s), len(by_sec[s])))
@@ -691,7 +723,9 @@ def write_html(path, items, sections_order, info, d_from, d_to, site=False):
     for si, s in enumerate(order):
         out.append('<section id="s%d"><h2>%s <small>%d</small></h2>' % (si, e(s), len(by_sec[s])))
         for rank, it in enumerate(by_sec[s]):
-            rec_json = json.dumps({k: it[k] for k in ("title", "authors", "journal", "date", "doi", "link", "preprint")},
+            rec = {k: it[k] for k in ("title", "authors", "journal", "date", "doi", "link", "preprint")}
+            rec["review"] = bool(it.get("review"))
+            rec_json = json.dumps(rec,
                                   ensure_ascii=False)
             iid = it["doi"] or ("t:" + norm_title(it["title"]))
             badges = ""
@@ -744,6 +778,63 @@ def write_csv(path, items):
             w.writerow([it["section"], it["score"], it["title"], it["authors"], it["journal"],
                         it["date"], "yes" if it["preprint"] else "", it["doi"], it["link"],
                         "; ".join(it["terms"]), it["source"]])
+
+
+SAVED_BODY = r"""
+<body data-date="saved">
+<header><div class="wrap"><h1>Saved papers</h1>
+<div class="meta"><span id="count">0</span> papers saved in this browser · <a href="index.html">newest digest</a></div>
+<div class="bar"><input id="q" type="search" placeholder="Filter by any word…">
+<select id="sort"><option value="saved">Newest saved first</option><option value="pub">Newest published first</option><option value="title">Title A to Z</option></select>
+<button class="primary" onclick="copyRefs(visible())">Copy all</button>
+<button onclick="risFor(visible(),'saved_papers.ris')">Download as RIS (Zotero)</button>
+<button onclick="backup()">Backup</button>
+<label class="btnlike">Restore<input type="file" id="restore" accept=".json,application/json" hidden></label>
+<button id="themebtn" onclick="toggleTheme()">Dark mode</button><span id="flash" class="meta"></span></div>
+<div class="meta">Saved papers live in this browser only. Use <b>Backup</b> to keep a copy or to move them to another device, then <b>Restore</b> there.</div>
+</div></header>
+<main><div class="wrap"><div id="list"></div><p id="empty" class="meta hide">Nothing saved yet. Tick papers in a digest and they appear here.</p></div></main>
+<script>""" + HTML_SCRIPT.split("<script>", 1)[1].split("const DATE=", 1)[0] + r"""
+let saved=loadSaved();
+const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function entries(){
+  const q=document.getElementById('q').value.toLowerCase().trim();
+  let l=Object.entries(saved).map(([id,r])=>Object.assign({id},r));
+  if(q)l=l.filter(r=>(r.title+' '+r.authors+' '+r.journal+' '+(r.abstract||'')).toLowerCase().includes(q));
+  const k=document.getElementById('sort').value;
+  l.sort((a,b)=>k==='title'?a.title.localeCompare(b.title):k==='pub'?(b.date||'').localeCompare(a.date||''):(b.savedOn||'').localeCompare(a.savedOn||''));
+  return l;
+}
+function visible(){return entries()}
+function render(){
+  const l=entries();
+  document.getElementById('count').textContent=Object.keys(saved).length;
+  document.getElementById('empty').classList.toggle('hide',Object.keys(saved).length>0);
+  document.getElementById('list').innerHTML=l.map(r=>`<div class="item kept"><div class="body">
+    <a class="t" href="${esc(r.link)}" target="_blank" rel="noopener">${esc(r.title)}</a>
+    <div class="au">${esc(r.authors)}</div>
+    <div class="src">${r.preprint?'<span class="badge pre">preprint</span>':''}${r.review?'<span class="badge rev">review</span>':''}<i>${esc(r.journal)}</i> · ${esc(r.date)} · saved ${esc(r.savedOn)}${r.digest?` from <a href="digest_${esc(r.digest)}.html">${esc(r.digest)} digest</a>`:''}</div>
+    ${r.abstract?`<details><summary>abstract</summary><p>${esc(r.abstract)}</p></details>`:''}
+    <button class="rm" data-id="${esc(r.id)}">Remove</button></div></div>`).join('');
+  document.querySelectorAll('.rm').forEach(b=>b.onclick=()=>{if(confirm('Remove this paper from Saved?')){saved=loadSaved();delete saved[b.dataset.id];storeSaved(saved);render()}});
+}
+function backup(){downloadFile('saved_papers_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(loadSaved(),null,1),'application/json')}
+document.getElementById('restore').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  f.text().then(t=>{let add;try{add=JSON.parse(t)}catch(err){alert('That file is not a saved-papers backup.');return}
+    saved=loadSaved();let n=0;for(const[k,v]of Object.entries(add)){if(!saved[k]&&v&&v.title){saved[k]=v;n++}}
+    storeSaved(saved);render();flash('Restored '+n+(n===1?' paper':' papers'));});
+});
+['q','sort'].forEach(id=>document.getElementById(id).addEventListener('input',render));
+render();
+</script>
+</body></html>
+"""
+
+
+def write_saved_page(out_dir):
+    with open(os.path.join(out_dir, "saved.html"), "w", encoding="utf-8") as fh:
+        fh.write(HTML_HEAD.replace("Plant paper digest __DATE__", "Saved papers") + SAVED_BODY)
 
 
 def write_site(out_dir, base, n_papers, d_from, d_to, prof):
@@ -925,6 +1016,7 @@ def main():
     sections_order = [s["name"] for s in prof["sections"]] + ["Other plant biology"]
     write_html(html_path, kept, sections_order, info, d_from, d_to, site=bool(args.site))
     write_csv(csv_path, kept)
+    write_saved_page(out_dir)
     if not args.site:
         shutil.copyfile(html_path, os.path.join(out_dir, "latest.html"))
     else:

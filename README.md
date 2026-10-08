@@ -2,7 +2,7 @@
 
 A weekly list of new plant biology papers, filtered by your own keywords, published as a web page you can open on any device. It runs on GitHub for free: no installation, no server, no costs.
 
-Every Monday it collects new papers from **Europe PMC** (PubMed and preprints), **bioRxiv** and **Crossref** (about 30 journals checked directly). It keeps the plant papers, scores them against your keywords, merges preprint and journal versions of the same paper, skips anything it already showed you, and sorts the rest into topic sections. On the page you can tick papers, filter by any word, hide preprints or reviews, copy the ticked papers as references, or download them as a RIS file for Zotero.
+Every Monday it collects new papers from **Europe PMC** (PubMed and preprints), **bioRxiv** and **Crossref** (about 30 journals checked directly). It keeps the plant papers, scores them against your keywords, merges preprint and journal versions of the same paper, skips anything it already showed you, and sorts the rest into topic sections. On the page you can filter by any word, show only reviews, preprints or research papers, and tick papers to save them. Saved papers from all weeks collect on a **Saved** page, where you can copy them as references, download them as a RIS file for Zotero, or back them up. Saved papers are kept in your browser, so use Backup and Restore to move them to another device.
 
 More background: [the blog post](https://milanzupunski.github.io/blog/2026/10/08/plant-paper-digest).
 
