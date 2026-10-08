@@ -548,14 +548,15 @@ HTML_HEAD = """<!doctype html>
 <style>
 :root{--bg:#fbfaf7;--card:#fff;--ink:#1f2421;--mute:#68716b;--line:#e3e1da;
 --acc:#2f6b4f;--acc2:#e7f0ea;--pre:#8a5a00;--pre2:#fbf1dc;--sel:#fff7d6}
-@media (prefers-color-scheme:dark){:root{--bg:#141716;--card:#1c201e;--ink:#e6e8e4;
---mute:#9aa39d;--line:#2d3330;--acc:#7cc2a0;--acc2:#20302a;--pre:#e0b25c;--pre2:#33291a;--sel:#3a3520}}
+:root[data-theme=dark]{--bg:#141716;--card:#1c201e;--ink:#e6e8e4;
+--mute:#9aa39d;--line:#2d3330;--acc:#7cc2a0;--acc2:#20302a;--pre:#e0b25c;--pre2:#33291a;--sel:#3a3520}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 header{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px}
 .wrap{max-width:980px;margin:0 auto}
 h1{font-size:20px;margin:0 0 4px}
 .meta{color:var(--mute);font-size:13px}
+.meta a{color:var(--acc)}
 .bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
 input[type=search]{flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink)}
 button{padding:7px 11px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);cursor:pointer;font-size:13px}
@@ -588,7 +589,9 @@ section.open .item.more{display:flex}
 section.open .item.more.hide{display:none}
 section.open .morebtn{display:none}
 .morebtn{margin:4px 0 0}
-</style></head>
+</style>
+<script>try{if(localStorage.getItem("plantdigest-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}</script>
+</head>
 """
 
 HTML_SCRIPT = r"""
@@ -647,6 +650,9 @@ function ris(){
   a.download='digest_'+document.body.dataset.date+'_selected.ris';a.click();
 }
 function showMore(b){b.closest('section').classList.add('open')}
+function setThemeLabel(){const b=document.getElementById("themebtn");if(b)b.textContent=document.documentElement.dataset.theme==="dark"?"Light mode":"Dark mode"}
+function toggleTheme(){const d=document.documentElement;const dark=d.dataset.theme!=="dark";if(dark)d.dataset.theme="dark";else delete d.dataset.theme;try{localStorage.setItem("plantdigest-theme",dark?"dark":"light")}catch(e){}setThemeLabel()}
+setThemeLabel();
 function clearAll(){if(confirm('Untick everything?')){kept={};save();location.reload()}}
 function flash(m){const b=document.getElementById('flash');b.textContent=m;setTimeout(()=>b.textContent='',2500)}
 </script>
@@ -676,7 +682,7 @@ def write_html(path, items, sections_order, info, d_from, d_to, site=False):
                '<label class="chk"><input id="norev" type="checkbox">hide reviews</label>'
                '<button class="primary" onclick="copyList()">Copy ticked (<span id="nkept">0</span>)</button>'
                '<button onclick="ris()">Download ticked as RIS (Zotero)</button>'
-               '<button onclick="clearAll()">Untick all</button><span id="flash" class="meta"></span></div>')
+               '<button onclick="clearAll()">Untick all</button><button id="themebtn" onclick="toggleTheme()">Dark mode</button><span id="flash" class="meta"></span></div>')
     out.append("<nav>")
     for s in order:
         out.append('<a href="#s%d">%s (%d)</a>' % (order.index(s), e(s), len(by_sec[s])))
@@ -764,8 +770,7 @@ def write_site(out_dir, base, n_papers, d_from, d_to, prof):
         fh.write("""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Earlier digests</title>
 <style>body{font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;max-width:720px;margin:40px auto;padding:0 16px;color:#1f2421;background:#fbfaf7}
-a{color:#2f6b4f}span{color:#68716b;font-size:14px}li{margin:6px 0}
-@media (prefers-color-scheme:dark){body{background:#141716;color:#e6e8e4}a{color:#7cc2a0}span{color:#9aa39d}}</style>
+a{color:#2f6b4f}span{color:#68716b;font-size:14px}li{margin:6px 0}</style>
 </head><body><h1>Earlier digests</h1><p><a href="index.html">Newest digest</a> · <a href="feed.xml">RSS feed</a></p>
 <ul>%s</ul></body></html>""" % rows)
 
