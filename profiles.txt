@@ -1,0 +1,472 @@
+# Plant paper digest: keyword profiles
+# ------------------------------------------------------------------
+# Edit this file to tune the digest. Lines starting with # are ignored.
+#
+# Term syntax
+#   root hair          phrase; spaces also match hyphens ("root-hair")
+#   stoma*             * at the end = any ending (stoma, stomata, stomatal)
+#   ROS                ALL-CAPS terms match case-sensitively (ROS, ABA, ER, IAA)
+#                      everything else matches regardless of case
+#   re:PIN\d+          raw regular expression (advanced)
+#   calcium | 2        weight after a bar; default weight is 1
+#
+# Scoring: a term found in the TITLE counts double. Each term counts once.
+# A paper is filed under the section where it scores highest; the other
+# matching sections show up as tags.
+
+[settings]
+# How many days back to look (the weekly run uses 8 to give a 1-day overlap;
+# papers already shown in an earlier digest are skipped anyway)
+days = 8
+# Papers scoring below this are dropped. Raise it if the list is too long,
+# lower it if you see too little. (First 30-day run: 2 gave ~1,100/week.)
+min_score = 6
+# Optional: your email for Crossref's "polite" pool (faster, more reliable).
+crossref_mailto =
+# yes = bioRxiv: only first versions (new preprints), not revisions
+biorxiv_new_only = yes
+# Skip papers published more than this many days ago. Europe PMC sometimes
+# indexes old papers in bulk, and they would otherwise appear as "new".
+max_age_days = 365
+# Only needed if your digest lives at a custom address. On GitHub the
+# address is worked out automatically (https://USERNAME.github.io/REPO/).
+site_url =
+
+
+[gate]
+# A paper must contain at least ONE of these to be considered at all.
+# (Skipped for bioRxiv "plant biology" preprints and for journals marked
+# "plant" in the [journals] list, which are plant papers by definition.)
+plant
+plants
+Arabidopsis
+thaliana
+rice
+Oryza
+maize
+Zea mays
+wheat
+Triticum
+barley
+Hordeum
+sorghum
+Setaria
+Brachypodium
+tomato
+Solanum
+potato
+tobacco
+Nicotiana
+Medicago
+Lotus japonicus
+soybean
+Glycine max
+Brassica
+poplar
+Populus
+willow
+grapevine
+lettuce
+sugar beet
+cucumber
+cotton
+Marchantia
+Physcomitrium
+Physcomitrella
+bryophyte*
+angiosperm*
+seedling*
+crop*
+chloroplast*
+plastid*
+phloem
+xylem
+stomata*
+stomatal
+guard cell*
+root hair*
+lateral root*
+rhizosphere
+meristem*
+pollen
+hypocotyl*
+cotyledon*
+legume*
+rhizobi*
+mycorrhiz*
+auxin*
+cytokinin*
+gibberellin*
+brassinosteroid*
+strigolactone*
+phytohormone*
+
+
+[section: Ca2+, ROS and early signaling]
+calcium | 2
+Ca2+ | 2
+Ca 2+ | 2
+Ca(2+) | 2
+Ca²⁺ | 2
+calcium signal* | 3
+cytosolic calcium | 2
+calcium wave* | 3
+ROS | 2
+reactive oxygen species | 2
+H2O2 | 1.5
+hydrogen peroxide | 1.5
+Rboh* | 2
+NADPH oxidase* | 1.5
+oxidative burst | 2
+apoplast* | 1
+membrane potential | 1.5
+depolari* | 1.5
+electrical signal* | 2
+systemic signal* | 2
+GLR* | 2
+glutamate receptor-like | 2
+CNGC* | 2
+OSCA* | 2
+MCA1 | 2
+MOCA1 | 3
+annexin* | 1.5
+CPK* | 1.5
+CDPK* | 1.5
+CBL* | 1.5
+CIPK* | 1.5
+calmodulin* | 1.5
+CML* | 1
+extracellular ATP | 2.5
+eATP | 2.5
+DORN1 | 2.5
+P2K1 | 2.5
+mechanosens* | 2
+osmosens* | 2
+salt sens* | 2.5
+pH | 0.5
+
+
+[section: Kinases and signal transduction]
+kinase* | 1
+receptor kinase* | 1.5
+receptor-like kinase* | 1.5
+RLK* | 1.5
+MAPK* | 1.5
+MPK3 | 1.5
+MPK6 | 1.5
+phosphoryl* | 1
+phosphatase* | 1
+signal transduction | 1
+signaling | 0.5
+signalling | 0.5
+receptor* | 0.5
+peptide hormone* | 1.5
+small peptide* | 1.5
+RALF* | 1.5
+FERONIA | 2
+second messenger* | 1.5
+ubiquitin* | 0.5
+
+
+[section: Hormones]
+auxin* | 1
+IAA | 1
+re:PIN\d+ | 1
+abscisic acid | 1
+ABA | 1
+gibberellin* | 1
+GA | 0.5
+GA3 | 1
+GA4 | 1
+cytokinin* | 1
+ethylene | 1
+jasmon* | 1
+JA | 0.5
+MeJA | 1
+salicylic acid | 1
+brassinosteroid* | 1
+strigolactone* | 1
+karrikin* | 1
+phytohormone* | 1
+hormone* | 0.5
+
+
+[section: Plant-microbe interactions and immunity]
+immun* | 1
+PTI | 1.5
+ETI | 1
+PAMP* | 1.5
+MAMP* | 1.5
+DAMP* | 1.5
+flg22 | 2
+elf18 | 2
+chitin | 2
+Pep1 | 2
+pattern recognition receptor* | 1.5
+PRR* | 1
+NLR* | 1
+effector* | 1
+pathogen* | 1
+Pseudomonas syringae | 1
+Xanthomonas | 2
+Botrytis | 1
+Phytophthora | 1
+oomycete* | 1
+elicitor* | 2
+phage* | 1.5
+rhizobi* | 1
+mycorrhiz* | 1
+symbio* | 1
+microbiome* | 1
+microbiota | 1
+endophyt* | 1
+defense | 0.5
+defence | 0.5
+
+
+[section: Abiotic stress]
+salt stress | 1.5
+salinity | 1.5
+NaCl | 1
+osmotic stress | 1.5
+drought | 1
+heat stress | 1
+cold stress | 1
+freezing | 1
+hypoxia | 1
+flooding | 1
+phosphate starvation | 1
+nitrate | 0.5
+nutrient* | 0.5
+heavy metal* | 1
+cadmium | 1
+stress respon* | 0.5
+
+
+[section: Cell biology and organelles]
+cell wall* | 1
+plasma membrane | 1
+vacuol* | 1
+tonoplast | 1.5
+endoplasmic reticulum | 1
+ER | 1
+nucleus | 1
+nuclear | 0.5
+chloroplast* | 1
+mitochondri* | 1
+peroxisom* | 1
+Golgi | 1
+endosom* | 1
+trafficking | 1
+endocytosis | 1
+exocytosis | 1
+vesicle* | 1
+cytoskelet* | 1
+actin | 1
+microtubul* | 1
+organelle* | 1
+cell division | 1
+autophagy | 1
+plasmodesmat* | 1
+nanodomain* | 1.5
+membrane domain* | 1.5
+cell polarity | 1.5
+polarity | 1
+tip growth | 2
+cell elongation | 1
+cell expansion | 1
+
+
+[section: Growth, development and organs]
+root | 0.5
+roots | 0.5
+root hair* | 2
+lateral root* | 1.5
+primary root* | 1.5
+root growth | 1.5
+root development | 1.5
+root tip* | 1.5
+root architecture | 1.5
+gravitrop* | 1.5
+hydrotrop* | 1.5
+phototrop* | 1
+tropism* | 1
+leaf | 0.5
+leaves | 0.5
+stem | 0.5
+stems | 0.5
+stoma* | 1
+guard cell* | 1
+bark | 1
+cambium | 1
+xylem | 0.5
+phloem | 0.5
+meristem* | 1
+stem cell* | 1
+shoot* | 0.5
+hypocotyl* | 0.5
+cotyledon* | 0.5
+flowering | 0.5
+seed* | 0.5
+germination | 0.5
+embryo* | 0.5
+pollen tube* | 1
+trichome* | 1
+epiderm* | 0.5
+endoderm* | 1
+Casparian | 1.5
+growth | 0.5
+development | 0.5
+morphogen* | 1
+organogenesis | 1
+differentiation | 0.5
+
+
+[section: Methods: imaging, biosensors, microfluidics]
+microfluidic* | 3
+lab-on-a-chip | 3
+RootChip* | 3
+root chip* | 3
+biosensor* | 2
+genetically encoded | 2
+GCaMP* | 3
+R-GECO* | 3
+YC3.6 | 3
+Cameleon | 2
+roGFP* | 2.5
+re:HyPer[-\s]?\d | 2.5
+FRET | 1.5
+live-cell imaging | 2
+live imaging | 2
+light-sheet | 2
+confocal | 1
+microscop* | 1
+super-resolution | 1.5
+time-lapse | 1.5
+image analysis | 1.5
+segmentation | 1
+deep learning | 1
+machine learning | 1
+single-cell | 1
+spatial transcriptom* | 1.5
+optogenet* | 2
+CRISPR | 0.5
+
+
+[boost]
+# Added to the score but does not define a section
+Arabidopsis | 0.5
+Arabidopsis root* | 1
+
+
+[penalty]
+# Subtracted from the score (pushes off-topic papers below min_score)
+re:^(Correction|Erratum|Corrigendum)\b | 20
+patients | 5
+mice | 5
+rats | 5
+cancer | 5
+tumor* | 5
+tumour* | 5
+HepG2 | 5
+cytotoxic* | 3
+essential oil* | 4
+plant extract* | 4
+antioxidant activity | 3
+antimicrobial activity | 3
+green synthesis | 4
+molecular docking | 3
+network pharmacology | 5
+traditional Chinese medicine | 5
+dental | 5
+root canal | 5
+power plant* | 5
+wastewater | 3
+dietary | 3
+obesity | 5
+diabetes | 5
+# applied agronomy, breeding, ecology, phylogenetics
+cultivar* | 2
+yield | 2
+field trial* | 2
+field experiment* | 2
+germplasm | 2
+fungicide* | 3
+disease incidence | 3
+disease management | 3
+first report | 4
+phylogen* | 2
+chloroplast genome* | 4
+plastome* | 4
+species distribution | 3
+forest* | 2
+soil | 1
+fertiliz* | 2
+fertilis* | 2
+postharvest | 3
+fruit quality | 3
+
+
+[journal penalty]
+# Subtracted when the journal name CONTAINS this text (case ignored).
+# Start with = to require the exact full name (=Plant Pathology does not
+# hit Molecular Plant Pathology).
+# Format:  part of journal name | weight
+Plant Disease | 4
+Phytopathology | 4
+=Plant Pathology | 3
+European journal of plant pathology | 3
+Potato research | 4
+Agronomy | 4
+crop science | 4
+Genetic resources and crop evolution | 5
+Journal of Ecology | 4
+Functional Ecology | 4
+Global Change Biology | 4
+New forests | 5
+science of food | 5
+Food | 4
+Horticultur | 2
+Plant Nutrition | 2
+Field Crops | 4
+Weed | 3
+
+
+[journals]
+# Crossref is checked directly for these journals, which catches papers
+# before they reach PubMed/Europe PMC.  Format:  ISSN | name | plant/any
+# "plant" = every paper counts as a plant paper; "any" = must pass [gate].
+# The digest header lists any journal that returned 0 papers: if one stays
+# at 0 for several weeks, its ISSN is probably wrong.
+1040-4651 | The Plant Cell | plant
+1532-298X | The Plant Cell | plant
+0032-0889 | Plant Physiology | plant
+1532-2548 | Plant Physiology | plant
+0028-646X | New Phytologist | plant
+1469-8137 | New Phytologist | plant
+0960-7412 | The Plant Journal | plant
+1365-313X | The Plant Journal | plant
+2055-0278 | Nature Plants | plant
+1674-2052 | Molecular Plant | plant
+0140-7791 | Plant, Cell & Environment | plant
+1365-3040 | Plant, Cell & Environment | plant
+0022-0957 | Journal of Experimental Botany | plant
+1460-2431 | Journal of Experimental Botany | plant
+1360-1385 | Trends in Plant Science | plant
+1369-5266 | Current Opinion in Plant Biology | plant
+0032-0781 | Plant and Cell Physiology | plant
+1471-9053 | Plant and Cell Physiology | plant
+2590-3462 | Plant Communications | plant
+2632-8828 | Quantitative Plant Biology | plant
+0960-9822 | Current Biology | any
+2211-1247 | Cell Reports | any
+0092-8674 | Cell | any
+0028-0836 | Nature | any
+0036-8075 | Science | any
+2041-1723 | Nature Communications | any
+0027-8424 | PNAS | any
+1545-7885 | PLOS Biology | any
+2050-084X | eLife | any
+1460-2075 | The EMBO Journal | any
+1534-5807 | Developmental Cell | any
+0950-1991 | Development | any

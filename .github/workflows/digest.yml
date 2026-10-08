@@ -1,0 +1,72 @@
+name: Weekly digest
+
+on:
+  schedule:
+    # Every Monday at 05:30 UTC (07:30 in Central Europe in summer). Edit to taste:
+    # minute hour day-of-month month day-of-week
+    - cron: "30 5 * * 1"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "How many days to look back (leave empty for the default in profiles.txt; use 30 for a first run)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # save the digest and the list of papers already shown
+  pages: write      # publish the web page
+  id-token: write
+
+concurrency:
+  group: digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    # The original template repository does not run itself, so copies made
+    # from it start clean (no one else's digests or reading history).
+    if: github.repository != 'milanzupunski/plant-paper-digest'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Build the digest
+        env:
+          DAYS: ${{ github.event.inputs.days }}
+        run: |
+          if [[ "$DAYS" =~ ^[0-9]+$ ]]; then
+            python digest.py --site docs --days "$DAYS"
+          else
+            python digest.py --site docs
+          fi
+
+      - name: Save the digest and the list of papers already shown
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs seen.json state.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Nothing new to save."
+          else
+            git commit -m "Digest $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4

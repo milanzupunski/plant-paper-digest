@@ -1,0 +1,4 @@
+digests/
+run_log.txt
+__pycache__/
+*.tmp
