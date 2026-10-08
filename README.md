@@ -61,6 +61,10 @@ A term in the title counts double. Give broad words ("growth", "development") a 
 - **GitHub pauses scheduled runs** in repositories with no activity for 60 days. The weekly digest itself counts as activity, so this should not happen, but if runs stop, go to the Actions tab and re-enable the workflow.
 - **It's a keyword filter.** It will miss papers that use none of your terms, so it is worth adding synonyms and gene names over time.
 
+## Getting updates
+
+Your copy does not update itself when this template improves. To get a newer version, open `digest.py` here, copy its contents, and paste them over `digest.py` in your own repository (pencil icon, then **Commit changes**). Your keywords in `profiles.txt` are not affected.
+
 ## Run it on your own computer instead
 
 You can also run it locally with Python 3 and the `requests` package (included in Anaconda): download the repository and run `python digest.py --days 30`. The digest appears in `digests/latest.html`. On Windows, `run_digest.bat` does the same and opens the result, and `setup_weekly_task.bat` schedules it every Monday.
