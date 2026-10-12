@@ -126,7 +126,7 @@ def parse_profiles(path):
 # HTTP helper
 # ======================================================================
 
-def get_json(url, params=None, tries=4):
+def get_json(url, params=None, tries=5):
     last = None
     for i in range(tries):
         try:
@@ -134,7 +134,8 @@ def get_json(url, params=None, tries=4):
                              headers={"User-Agent": UA})
             if r.status_code in (429, 500, 502, 503, 504):
                 last = "HTTP %s" % r.status_code
-                time.sleep(5 * (i + 1))
+                if i < tries - 1:
+                    time.sleep(15 * (i + 1))   # servers under load: back off longer
                 continue
             if 400 <= r.status_code < 500:
                 raise RuntimeError("HTTP %s: %s" % (r.status_code, r.text[:200]))
