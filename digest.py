@@ -1007,6 +1007,10 @@ def main():
 
     out_dir = os.path.abspath(args.site) if args.site else OUT_DIR
     os.makedirs(out_dir, exist_ok=True)
+    if args.site and not kept and not args.fixture:
+        # e.g. a delayed scheduled run right after a manual one: keep the current page
+        log("No new papers since the last digest; the current page stays as it is.")
+        return
     stamp = dt.date.today().isoformat()
     base, n = "digest_%s" % stamp, 2
     while os.path.exists(os.path.join(out_dir, base + ".html")) and not args.ignore_seen:
