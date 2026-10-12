@@ -15,9 +15,10 @@
 # matching sections show up as tags.
 
 [settings]
-# How many days back to look (the weekly run uses 8 to give a 1-day overlap;
-# papers already shown in an earlier digest are skipped anyway)
-days = 8
+# How many days back to look. 15 for a weekly run: some papers appear in
+# Europe PMC's search days after their index date, and a wider window catches
+# them. Papers already shown in an earlier digest are never repeated.
+days = 15
 # Papers scoring below this are dropped. Raise it if the list is too long,
 # lower it if you see too little. (First 30-day run: 2 gave ~1,100/week.)
 min_score = 6
