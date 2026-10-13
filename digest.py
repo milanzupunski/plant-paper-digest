@@ -178,7 +178,9 @@ def epmc_term(term):
 def fetch_europepmc(prof, d_from, d_to, log):
     url = "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
     clauses = [c for c in (epmc_term(g["term"]) for g in prof["gate"]) if c]
-    gate_q = "(" + " OR ".join(clauses) + ")"
+    # Only PubMed (MED) and preprints (PPR). Other Europe PMC sources, such as
+    # Agricola, add old papers in bulk without DOIs, which then look "new".
+    gate_q = "(" + " OR ".join(clauses) + ") AND (SRC:MED OR SRC:PPR)"
     out = []
     # FIRST_IDATE = date first indexed in Europe PMC, which also catches
     # papers that were published a while ago but only just indexed.
@@ -1014,14 +1016,30 @@ def main():
         return
     stamp = dt.date.today().isoformat()
     base, n = "digest_%s" % stamp, 2
-    while os.path.exists(os.path.join(out_dir, base + ".html")) and not args.ignore_seen:
-        base, n = "digest_%s_%d" % (stamp, n), n + 1
+    items_path = os.path.join(out_dir, base + ".json")
+    if args.site and os.path.exists(items_path):
+        # A second run on the same day (e.g. a delayed scheduled run) adds to
+        # that day's digest instead of replacing it.
+        with open(items_path, encoding="utf-8") as fh:
+            prev = json.load(fh)
+        have = {k for r in prev["items"] for k in seen_keys(r)}
+        added = [r for r in kept if not any(k in have for k in seen_keys(r))]
+        log("Added %d papers to today's earlier digest" % len(added))
+        kept = prev["items"] + added
+        d_from = min(d_from, prev.get("from", d_from))
+    else:
+        while os.path.exists(os.path.join(out_dir, base + ".html")) and not args.ignore_seen:
+            base, n = "digest_%s_%d" % (stamp, n), n + 1
+        items_path = os.path.join(out_dir, base + ".json")
     html_path = os.path.join(out_dir, base + ".html")
     csv_path = os.path.join(out_dir, base + ".csv")
     sections_order = [s["name"] for s in prof["sections"]] + ["Other plant biology"]
     write_html(html_path, kept, sections_order, info, d_from, d_to, site=bool(args.site))
     write_csv(csv_path, kept)
     write_saved_page(out_dir)
+    if args.site:
+        with open(items_path, "w", encoding="utf-8") as fh:
+            json.dump({"from": d_from, "to": d_to, "items": kept}, fh)
     if not args.site:
         shutil.copyfile(html_path, os.path.join(out_dir, "latest.html"))
     else:
