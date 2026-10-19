@@ -51,9 +51,24 @@ A term in the title counts double. Give broad words ("growth", "development") a 
 - **Too many papers:** raise `min_score` in the `[settings]` part of `profiles.txt`.
 - **A paper you expected is missing:** look at the "matched:" line under similar papers in the digest to see which terms fire, then add the missing term.
 - **Old papers appear:** lower `max_age_days`.
-- **A different day or time:** edit the `cron` line in `.github/workflows/digest.yml`. Times are UTC.
+- **A different day or time:** edit the `cron` line in `.github/workflows/digest.yml`. Times are UTC. The line lists several hours on purpose (see below).
 - **Start over:** delete `seen.json` (the list of papers already shown) and run the workflow again.
 - **Something went wrong:** open the Actions tab and click the failed run to see the log. The bottom of every digest page also has a short run report.
+
+## If your digest did not update
+
+GitHub's scheduled runs are not punctual. On busy mornings, Monday especially, GitHub can start them hours late or skip them altogether. This is a known limit of GitHub, not a fault in your copy. To make up for it, the workflow tries five times every Monday (05:17, 07:17, 09:17, 11:17 and 13:17 Central European summer time). The first attempt that gets through builds the digest. Later attempts only add papers that appeared in the meantime, so nothing is shown twice.
+
+If your page still shows last week's digest by Monday afternoon:
+
+1. **Start the run yourself.** Go to the **Actions** tab, click **Weekly digest** on the left, then **Run workflow**, leave the box empty, and click the green **Run workflow** button. After 5 to 30 minutes the new digest is online. Reload the page with Ctrl+F5 (Cmd+Shift+R on a Mac) if you still see the old one.
+2. **If a run shows a red cross,** click it to see which step failed:
+   - *Build the digest* failed: usually one of the paper databases was down. Wait an hour and run it again.
+   - *Save the digest* failed: something else changed in your repository during the run. Simply run it again.
+   - *Deploy* failed: check that **Settings → Pages → Source** is still set to **GitHub Actions**.
+3. **If no runs appear at all for weeks,** GitHub may have paused the schedule (see below). Open the Actions tab and click **Enable workflow** if you see that button.
+
+A run started by hand never causes duplicates or gaps: each digest starts where the previous successful one stopped, up to 60 days back.
 
 ## Good to know
 
@@ -62,6 +77,8 @@ A term in the title counts double. Give broad words ("growth", "development") a 
 - **It's a keyword filter.** It will miss papers that use none of your terms, so it is worth adding synonyms and gene names over time.
 
 ## Getting updates
+
+Copies made before 19 October 2026 try only once on Mondays. To get the five attempts, open `.github/workflows/digest.yml` here, copy its contents, and paste them over the same file in your repository.
 
 Your copy does not update itself when this template improves. To get a newer version, open `digest.py` here, copy its contents, and paste them over `digest.py` in your own repository (pencil icon, then **Commit changes**). Your keywords in `profiles.txt` are not affected.
 
