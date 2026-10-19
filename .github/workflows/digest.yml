@@ -2,9 +2,12 @@ name: Weekly digest
 
 on:
   schedule:
-    # Every Monday at 05:30 UTC (07:30 in Central Europe in summer). Edit to taste:
+    # Every Monday, tried several times (03:17, 05:17, 07:17, 09:17 and 11:17 UTC).
+    # GitHub sometimes starts scheduled runs hours late or skips them; the first
+    # run that gets through builds the digest, later runs only add new papers to
+    # it (or change nothing). Edit to taste:
     # minute hour day-of-month month day-of-week
-    - cron: "30 5 * * 1"
+    - cron: "17 3,5,7,9,11 * * 1"
   workflow_dispatch:
     inputs:
       days:
