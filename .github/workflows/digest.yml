@@ -64,7 +64,11 @@ jobs:
             echo "Nothing new to save."
           else
             git commit -m "Digest $(date -u +%Y-%m-%d)"
-            git push
+            # if something else was saved meanwhile, put this run's files on top
+            for i in 1 2 3; do
+              git pull --rebase -X theirs origin main && git push && break
+              sleep 10
+            done
           fi
 
       - uses: actions/configure-pages@v5
