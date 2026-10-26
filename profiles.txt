@@ -328,7 +328,18 @@ microfluidic* | 3
 lab-on-a-chip | 3
 RootChip* | 3
 root chip* | 3
-biosensor* | 2
+biosensor* | 2.5
+reporter* | 1.5
+bioluminescen* | 3
+autoluminescen* | 3
+luminescen* | 2
+luciferase* | 2.5
+NanoLuc | 3
+ratiometric | 3
+intensiometric | 3
+fluorescent protein* | 1.5
+fluorescent reporter* | 2
+quantitative imaging | 2
 genetically encoded | 2
 GCaMP* | 3
 R-GECO* | 3
