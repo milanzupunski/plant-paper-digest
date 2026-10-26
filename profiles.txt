@@ -417,6 +417,19 @@ fertiliz* | 2
 fertilis* | 2
 postharvest | 3
 fruit quality | 3
+# analytical chemistry and medical sensors, routine reporter assays
+electrochemical | 3
+colorimetric | 3
+immunoassay* | 4
+limit of detection | 4
+detection limit | 4
+carbon dot* | 4
+nanoprobe* | 3
+organoid* | 5
+medical | 3
+clinical | 3
+decision tree* | 3
+dual-luciferase | 3
 
 
 [journal penalty]
@@ -441,6 +454,15 @@ Food | 4
 Horticultur | 2
 Plant Nutrition | 2
 Field Crops | 4
+Talanta | 5
+=The Analyst | 5
+Analytical | 4
+ACS sensors | 4
+Spectrochimica | 5
+Food chemistry | 5
+Medical | 5
+Biofabrication | 5
+Nanophotonics | 4
 Weed | 3
 
 
